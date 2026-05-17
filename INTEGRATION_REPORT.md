@@ -14,6 +14,17 @@
 
 `DigitalMehandis_V5.0` (EthioQS) is a tool for quantity surveying, Bill of Quantities (BOQ), and Bar Bending Schedules (BBS). Integrating `pdfplumber` can transform it from a manual entry tool into an automated data extraction powerhouse.
 
+### Architectural Choice: Library Dependency vs. Microservice
+When integrating `pdfplumber` with `DigitalMehandis`, the recommended approach is to **use `pdfplumber` as a library dependency** within the `DigitalMehandis` backend.
+
+- **Why not recreate it?** `pdfplumber` is the result of years of development and handles complex PDF edge cases (encoding, rotation, coordinate mapping). Re-creating its features would be an immense and unnecessary undertaking.
+- **Why library dependency?**
+    - **Performance**: Direct in-process access to the PDF data avoids the latency and overhead of network calls between two separate repositories.
+    - **Simplicity**: You manage one backend codebase. You simply add `pdfplumber` to your `requirements.txt`.
+    - **Tight Integration**: You can directly map `pdfplumber` objects to your SQLAlchemy models or Pydantic schemas without intermediate serialization layers.
+
+Only choose a separate "OCR/Extraction Microservice" if you expect extremely high load that requires scaling the extraction logic independently from the rest of the application.
+
 ### 1. Automated BOQ and BBS Extraction
 Construction professionals often receive existing BOQs or BBSs in PDF format. `pdfplumber` can be used in the `backend` (FastAPI) to automatically parse these tables and populate the database.
 
